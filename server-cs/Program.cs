@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore;
-
 namespace server_cs
 {
     public sealed class Program
@@ -9,7 +7,11 @@ namespace server_cs
             CreateWebHostBuilder(args).Build().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args).UseStartup<Startup>();
+        public static IHostBuilder CreateWebHostBuilder(string[] args) =>
+             Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
     }
 }

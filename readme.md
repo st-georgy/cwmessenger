@@ -3,7 +3,7 @@
 
 ## Server
 Server is being developed on ASP.NET Core (C#)
-Data Storing is in .json format
+Data Storing is performed using PostgreSQL
 
 ## Client
 Client will be developed on Electron JS
