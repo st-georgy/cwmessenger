@@ -8,7 +8,7 @@ using server_cs.Data;
 
 #nullable disable
 
-namespace server_cs.Migrations
+namespace server_cs.Data.Migrations
 {
     [DbContext(typeof(CWDbContext))]
     partial class CWDbContextModelSnapshot : ModelSnapshot

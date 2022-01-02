@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';">
+    <link rel="stylesheet" href="./css/lib/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <script defer src="./js/lib/signalr.min.js">require('./js/renderer.js')</script>
+    <script defer src="./js/connection.js"></script>
+    <script defer src="./js/chat.js"></script>
+    <title>Messenger by st-georgy</title>
+  </head>
+  <body>
+    <div class="d-flex align-items-center h-100 text-white" style="background: #2F3136;">
+      <div class="container-fluid h-100 d-flex justify-content-start">
+        <div class="container w-25">
+          <h1 class="text-uppercase text-center mb-5 mt-3" id='username'>username</h1>
+          <p class='mb-2' id='email'>Почта: </p>
+          <p class='mb-5' id='date'>Дата регистрации: </p>
+          <p class=>Аватар:</p>
+          <img src="./img/0.png" alt="avatar" class='img-circle mb-3' id='userAvatar' width=100, height=100>
+          <div>
+            <label for="formFileLg" class="form-label">Изменить аватар (png):</label>
+            <input class="form-control form-control-sm" id="formAvatar" type="file" accept="image/png">
+            <button type="button" class="btn btn-dark mb-2" id="updAvatar">Обновить аватар</button>
+          </div>
+        </div>
+
+        <div class="container d-flex flex-column">
+          <div class="container overflow-auto" style="margin-left: 3%; background: #36393F;">
+            <h1 class="text-uppercase text-center mb-5 mt-3">Чат</h1>
+            <div class="container" id="messages"></div>
+          </div>
+
+          <div class="container ms-4">
+            <form class="form-inline">
+              <div class="form-group mb-2 mt-3">
+                <input type="text" class="form-control" id="inputMessage" placeholder="Сообщение" style="background: #40444B; color: white;">
+              </div>
+              <button type="button" class="btn btn-dark mb-2" id="sendMsg">Отправить сообщение</button>
+            </form>
+          </div>
+        <div>
+      </div>
+    </div>
+  </body>
+</html>

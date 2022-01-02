@@ -16,10 +16,8 @@ namespace server_cs
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSignalR();
             services.AddEntityFrameworkNpgsql().AddDbContext<CWDbContext>(opt =>
                 opt.UseNpgsql(configuration.GetConnectionString("CWMessenger")));
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -34,8 +32,36 @@ namespace server_cs
                         ValidAudience = configuration["Jwt:Issuer"],
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
                     };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken))
+                                context.Token = accessToken;
+
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("ClientPermission", policy =>
+                {
+                    policy.AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
+
+            services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
+            });
             services.AddControllers();
 
             ServerLog.EnableLog();
@@ -46,8 +72,9 @@ namespace server_cs
         {
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
-
+            
             app.UseAuthentication();
+            app.UseCors();
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

@@ -9,10 +9,10 @@ using server_cs.Data;
 
 #nullable disable
 
-namespace server_cs.Migrations
+namespace server_cs.Data.Migrations
 {
     [DbContext(typeof(CWDbContext))]
-    [Migration("20211204200904_Initial")]
+    [Migration("20211205104531_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
