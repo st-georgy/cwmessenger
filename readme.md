@@ -2,10 +2,11 @@
 > RTU MIREA 3rd Semester CourseWork - Messenger Server&amp;Client
 
 ## Server
-Server is being developed on ASP.NET Core (C#)
+Server is developed on ASP.NET Core (C#)
 Data Storing is performed using PostgreSQL
 
 ## Client
-Client will be developed on Electron JS
+Client is developed on Electron JS, Bootstrap 5
 
-Now Server is in stage of development, client is empty.
+## Connection
+Real-time connection between client and server implemented with SignalR Core open-soure library

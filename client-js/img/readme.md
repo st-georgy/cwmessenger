@@ -1,0 +1,1 @@
+Avatars from the client side are stored in this folder.

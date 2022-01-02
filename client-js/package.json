@@ -1,0 +1,18 @@
+{
+  "name": "cwmessenger",
+  "version": "1.0.0",
+  "description": "RTU MIREA 3rd Semester Coursework",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "st-georgy",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^16.0.4"
+  },
+  "dependencies": {
+    "@microsoft/signalr": "^6.0.0",
+    "bootstrap": "^5.1.3"
+  }
+}

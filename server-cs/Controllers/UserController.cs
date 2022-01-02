@@ -6,6 +6,7 @@ using server_cs.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace server_cs.Controllers
 {
@@ -26,8 +27,9 @@ namespace server_cs.Controllers
         protected override void Dispose(bool disposing) =>
             _context.Dispose();
 
-        [HttpGet]
-        public IActionResult Test(string email) => Ok(_context.users.FirstOrDefault(x => x.Email == email));
+        [AllowAnonymous]
+        [HttpGet("/api/ping")]
+        public IActionResult TestConnection() => Ok("Server is responding.");
 
         [AllowAnonymous]
         [HttpGet("/api/[controller]/auth")]
@@ -51,7 +53,7 @@ namespace server_cs.Controllers
                     expires: DateTime.Now.AddHours(4),
                     signingCredentials: credentials);
                 ServerLog.Log($"Generated token for User {email}");
-                return Ok( new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+                return Ok( new { token = new JwtSecurityTokenHandler().WriteToken(token), user = user});
             }
             else
             {
@@ -63,7 +65,7 @@ namespace server_cs.Controllers
 
         [AllowAnonymous]
         [HttpGet("/api/[controller]/register")]
-        public IActionResult Register(string username, string email, string password)
+        public async Task<IActionResult> Register(string username, string email, string password)
         {
             var checkUser = _context.users.FirstOrDefault(x => x.Email == email);
             if (checkUser != null)
@@ -72,7 +74,7 @@ namespace server_cs.Controllers
                 return BadRequest($"User with E-mail \"{email}\" already exists. Try to log in.");
             }
 
-            User user = new User
+            var user = new User
             {
                 UserName = username,
                 Email = email,
@@ -80,16 +82,43 @@ namespace server_cs.Controllers
             };
             try
             {
-                _context.users.Add(user);
-                _context.SaveChangesAsync();
+                await _context.users.AddAsync(user);
+                await _context.SaveChangesAsync();
+                ServerLog.Log($"User with E-mail {email} registered");
+                return Ok();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 return BadRequest("Error");
             }
-            ServerLog.Log($"User with E-mail {email} registered");
+        }
+
+        private static string avatarsPath = @"..\server-cs\Data\Avatars\";
+
+        [AllowAnonymous]
+        [HttpPost("/api/[controller]/avatar/update")]
+        public async Task<IActionResult> UpdateAvatar([FromBody] JsonElement avatarBase64, [FromHeader] int uid)
+        {
+            
+            if (!Directory.Exists(avatarsPath)) Directory.CreateDirectory(avatarsPath);
+            string fileName = avatarsPath + $"{uid}.txt";
+
+            using (StreamWriter fs = new StreamWriter(fileName, false, Encoding.Default))
+                await fs.WriteLineAsync(avatarBase64.ToString());
+
             return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("/api/[controller]/avatar/get")]
+        public IActionResult GetUserAvatar([FromHeader] string uid)
+        {
+            if (!Directory.Exists(avatarsPath)) return BadRequest();
+            var fileName = avatarsPath + $"{uid}.txt";
+            if (!System.IO.File.Exists(fileName)) return BadRequest();
+            string result = System.IO.File.ReadAllText(fileName);
+            return Ok(result);
         }
     }
 }

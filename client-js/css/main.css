@@ -1,0 +1,53 @@
+.msgTime {
+  color: #726E6F;
+  font-size: 0.8rem;
+}
+
+.message:hover {
+  background: #32353B;
+}
+
+.container::-webkit-scrollbar {
+  display: none;
+}
+
+.messages {
+  width: 100%;
+}
+
+.divHR {
+  width: 100%;
+  height: 13px;
+  border-bottom: 1px solid #42454A;
+  text-align: center
+}
+
+.spanHR {
+  padding: 0 8px;
+  background: #36393F;
+  color: #726E6F;
+  font-weight: bold;
+}
+
+.msgUserName {
+  font-weight: bold;
+}
+
+.msgText {
+  color: #E1D9DB;
+  margin-top: -15px;
+}
+
+.form-control {
+  border: none;
+  box-shadow: none;
+}
+
+.form-control:focus {
+  border: none;
+  box-shadow: none;
+}
+
+.img-circle {
+  border-radius: 50%;
+}
