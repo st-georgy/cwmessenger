@@ -5,13 +5,21 @@ authBtn.addEventListener('click', function (event) {
   let pwd = document.getElementById('pwd').value
   if (email && pwd) event.preventDefault()
   if (!email || !pwd) return;
-  fetch('http://localhost:5056/api/User/auth?email=' + email + '&password=' + pwd)
-    .then(res => res.json())
+  var user = {
+    email: email,
+    password: pwd
+  }
+  fetch('http://localhost:5056/api/User/auth', {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(user)
+  }).then(res => res.json())
       .then(res => {
         let token = res.token
         let user = res.user
-        console.log(res.token)
-        localStorage.setItem('token', JSON.stringify(token))
+        localStorage.setItem('token', token)
         localStorage.setItem('uid', user.id)
         localStorage.setItem('uemail', user.email)
         localStorage.setItem('uname', user.userName)

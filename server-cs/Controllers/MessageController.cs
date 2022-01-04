@@ -4,7 +4,6 @@ using server_cs.Data;
 
 namespace server_cs.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     public class MessageController : Controller
     {
@@ -15,21 +14,12 @@ namespace server_cs.Controllers
         protected override void Dispose(bool disposing) =>
             _context.Dispose();
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("/api/[controller]/load")]
-        public IActionResult GetMessages(int startId)
+        public IActionResult GetMessages()
         {
-            if (startId < 0) return BadRequest("Start index must be > 0");
-            if (startId > getLastMsgId()) return NotFound("No more messages");
-
-            var messages = _context.messages.OrderByDescending(msg => msg.Id)
-                .Where(msg => (msg.Id >= startId))
-                .ToList();
-
-            int count = messages.Count() > 50 ? 50 : messages.Count();
-
-            var resultMessages = messages.Take(count).ToList();
-            foreach (Entities.Message msg in resultMessages)
+            var messages = _context.messages.OrderByDescending(msg => msg.Id).ToList();
+            foreach (Entities.Message msg in messages)
                 msg.UserSender = getUserById(msg.UserSenderId);
             return Ok(messages);
         }

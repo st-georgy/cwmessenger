@@ -17,7 +17,7 @@ const createWindow = () => {
     }
   })
 
-  win.removeMenu();
+  //win.removeMenu();
   win.loadFile('index.html')
 
   win.once('ready-to-show', () => {

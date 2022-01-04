@@ -8,8 +8,18 @@ registerBtn.addEventListener('click', function (event) {
   let uname = document.getElementById('uname').value
   let pwd = document.getElementById('pwd').value
   if (!email || !uname || !pwd) return;
-  fetch('http://localhost:5056/api/User/register?username=' + uname + '&email=' + email + '&password=' + pwd)
-    .then(response => {
+  var user = {
+    username: uname,
+    email: email,
+    password: pwd
+  }
+  fetch('http://localhost:5056/api/User/register', {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(user)
+  }).then(response => {
       if (response.ok) {
         alert('Вы успешно зарегистрированы! Теперь Вы можете войти.', 'Messenger by st-georgy')
         ipc.send('logRedirect')

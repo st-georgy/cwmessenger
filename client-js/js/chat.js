@@ -1,8 +1,20 @@
-const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
+const months = [
+  'января',
+  'февраля',
+  'марта',
+  'апреля',
+  'мая',
+  'июня',
+  'июля',
+  'августа',
+  'сентября',
+  'октября',
+  'ноября',
+  'декабря']
 
+const fs = require('fs')
 const sendMsgBtn = document.getElementById('sendMsg')
 const inputMsg = document.getElementById('inputMessage')
-const fs = require('fs')
 const username = document.getElementById('username')
 const email = document.getElementById('email')
 const date = document.getElementById('date')
@@ -22,139 +34,94 @@ if (fs.existsSync(updAvatarPath)) {
 
 connection.start()
 
-connection.on("RecieveMessage", (message) => {
-  var msgDiv = document.getElementById('messages')
-  var _userSender = message.userSender
+function addMessage(message) {
+  let _userSender = message.userSender
   var _msgTimestamp = new Date(message.timeStamp)
-  var _msgText = message.text
-  var _msgId = message.id
+  let _msgText = message.text
+  let _msgId = message.id
 
+  var msgDiv = document.getElementById('messages')
   let mainMsg = document.createElement('div')
-  mainMsg.className = 'd-flex message ps-2 pt-2'
-
+  let msg = document.createElement('div')
   let avatar = document.createElement('img')
-  avatar.className = 'img-circle mb-2'
+  let pMsg = document.createElement('p')
+  let pTime = document.createElement('p')
+  let pUser = document.createElement('p')
+  let msgTexts = document.createElement('div')
+  let msgInfo = document.createElement('div')
+
+  mainMsg.className = 'message d-flex mb-2 ps-2 pt-2'
+  msg.className = 'd-flex flex-column'
+  avatar.className = 'img-circle'
+  pMsg.className = 'msgText ps-2'
+  pTime.className = 'msgTime ps-2 pt-2'
+  pUser.className = 'msgUserName ps-2 pt-1'
+  msgTexts.className = 'd-flex flex-column pt-2'
+  msgInfo.className = 'd-inline-flex justify-content-start'
+
   avatar.width = '50'
   avatar.height = '50'
   avatar.src = './img/0.png'
   let updAvatarPath = `./img/${_userSender.id}.png`
   if (fs.existsSync(updAvatarPath)) {
     avatar.src = updAvatarPath
+  } else {
+    fetch('http://localhost:5056/api/User/avatar/get', {
+      method: 'get',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        'Content-Type': 'application/json',
+        'uid': _userSender.id
+      }
+    }).then(res => res.json())
+        .then (res => {
+          let avb64 = res.avatarBase64
+          if (avb64) {
+            fs.writeFile(updAvatarPath, avb64, 'base64', function(){})
+            avatar.src = updAvatarPath
+          }
+        })
   }
 
-  let msg = document.createElement('div')
-  msg.className = 'd-flex flex-column'
+  var min = _msgTimestamp.getMinutes() > 9
+    ? `${_msgTimestamp.getMinutes()}` : `0${_msgTimestamp.getMinutes()}`
 
-  let pMsg = document.createElement('p')
-  pMsg.className = 'msgText ps-2'
   pMsg.innerHTML = _msgText;
-
-  let pTime = document.createElement('p')
-  pTime.className = 'msgTime ps-2 pt-2'
-  var min = _msgTimestamp.getMinutes() > 9 ? `${_msgTimestamp.getMinutes()}` : `0${_msgTimestamp.getMinutes()}`
   pTime.innerHTML = `${_msgTimestamp.getHours()}:${min}`
-
-  let pUser = document.createElement('p')
-  pUser.className = 'msgUserName ps-2 pt-1'
   pUser.innerHTML = _userSender.userName
 
-  let msgTexts = document.createElement('div')
-  msgTexts.className = 'd-flex flex-column pt-2'
   msgTexts.setAttribute('id', `lm-${_msgId}`)
-
-  let msgInfo = document.createElement('div')
-  msgInfo.className = 'd-inline-flex justify-content-start'
-
   msg.setAttribute('id', _msgId)
   msgInfo.appendChild(pUser)
   msgInfo.appendChild(pTime)
   msgTexts.appendChild(pMsg)
+
   msg.appendChild(msgInfo)
   msg.appendChild(msgTexts)
+
   mainMsg.appendChild(avatar)
   mainMsg.appendChild(msg)
+
   msgDiv.appendChild(mainMsg)
   msgDiv.scrollIntoView({block: "end"})
+}
+
+connection.on("RecieveMessage", (message) => {
+  addMessage(message)
 })
 
-fetch('http://localhost:5056/api/Message/load?startId=1', {
+fetch('http://localhost:5056/api/Message/load', {
   method: 'get',
   headers: {
-    'Authorization': JSON.parse(localStorage.getItem('token'))
+    'Authorization': 'Bearer ' + localStorage.getItem('token')
   }
-})
-  .then(res => res.json())
+}).then(res => res.json())
     .then(res => {
       for (var i = res.length - 1; i >= 0; i--) {
         var _msg = res[i]
-        var _userSender = _msg.userSender
-        var _msgTimestamp = new Date(_msg.timeStamp)
-        var _msgText = _msg.text
-        var _msgId = _msg.id
         var msgDiv = document.getElementById('messages')
-
-        let mainMsg = document.createElement('div')
-        mainMsg.className = 'message d-flex mb-2 ps-2 pt-2'
-
-        let msg = document.createElement('div')
-        msg.className = 'd-flex flex-column'
-
-        let avatar = document.createElement('img')
-        avatar.className = 'img-circle'
-        avatar.width = '50'
-        avatar.height = '50'
-        avatar.src = './img/0.png'
-        let updAvatarPath = `./img/${_userSender.id}.png`
-        if (fs.existsSync(updAvatarPath)) {
-          avatar.src = updAvatarPath
-        } else {
-          fetch('http://localhost:5056/api/User/avatar/get', {
-            method: 'get',
-            headers: {
-              'Authorization': JSON.parse(localStorage.getItem('token')),
-              'uid': _userSender.id
-            },
-          })
-            .then(res => res.json())
-              .then (res => {
-                let avb64 = res.avatarBase64
-                if (avb64) {
-                  fs.writeFile(updAvatarPath, avb64, 'base64', function(){})
-                  avatar.src = updAvatarPath
-                }
-              })
-        }
-
-        let pMsg = document.createElement('p')
-        pMsg.className = 'msgText ps-2'
-        pMsg.innerHTML = _msgText;
-
-        let pTime = document.createElement('p')
-        pTime.className = 'msgTime ps-2 pt-2'
-        var min = _msgTimestamp.getMinutes() > 9 ? `${_msgTimestamp.getMinutes()}` : `0${_msgTimestamp.getMinutes()}`
-        pTime.innerHTML = `${_msgTimestamp.getHours()}:${min}`
-
-        let pUser = document.createElement('p')
-        pUser.className = 'msgUserName ps-2 pt-1'
-        pUser.innerHTML = _userSender.userName
-
-        let msgTexts = document.createElement('div')
-        msgTexts.className = 'd-flex flex-column pt-2'
-        msgTexts.setAttribute('id', `lm-${_msgId}`)
-
-        let msgInfo = document.createElement('div')
-        msgInfo.className = 'd-inline-flex justify-content-start'
-
-        msg.setAttribute('id', _msgId)
-        msgInfo.appendChild(pUser)
-        msgInfo.appendChild(pTime)
-        msgTexts.appendChild(pMsg)
-
-        msg.appendChild(msgInfo)
-        msg.appendChild(msgTexts)
-
-        mainMsg.appendChild(avatar)
-        mainMsg.appendChild(msg)
+        var _msgTimestamp = new Date(_msg.timeStamp)
+        addMessage(_msg)
 
         if (i != res.length - 1) {
           var _prevMsg = res[i + 1]
@@ -178,9 +145,6 @@ fetch('http://localhost:5056/api/Message/load?startId=1', {
           hr.appendChild(sp)
           msgDiv.appendChild(hr)
         }
-
-        msgDiv.appendChild(mainMsg)
-        msgDiv.scrollIntoView({block: "end"})
       }
     })
 
@@ -204,14 +168,10 @@ updAvatarBtn.addEventListener('click', () => {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': JSON.parse(localStorage.getItem('token')),
-        'uid': _uid
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
       },
-      body: JSON.stringify({avatarBase64: base64data})
-    })
-      .then(res => {
-        console.log(res)
-      })
+      body: JSON.stringify({uid: _uid, avatarBase64: base64data})
+    }).then(res => { console.log(res) })
   }
   reader.readAsDataURL(formAvatar.files[0]);
   formAvatar.value = ""

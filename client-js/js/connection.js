@@ -3,7 +3,7 @@ const ipc = ipcRenderer
 
 const connection = new signalR.HubConnectionBuilder()
   .withUrl("http://localhost:5056/chathub", {
-    accessTokenFactory: () => JSON.parse(localStorage.getItem('token'))
+    accessTokenFactory: () => localStorage.getItem('token')
   })
   .configureLogging(signalR.LogLevel.Information)
   .build();
@@ -15,6 +15,6 @@ async function start() {
     ipc.send('logged')
   } catch (err) {
     console.log(err)
-    ipc.send('notlogged')
+    //ipc.send('notlogged')
   }
 }
